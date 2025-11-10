@@ -7,6 +7,7 @@ import BillDetails from "../pages/BillDetails";
 import MyPayBills from "../pages/MyPayBills";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import PrivetRout from "./PrivetRout";
 
 const router = createBrowserRouter([
   {
@@ -21,11 +22,19 @@ const router = createBrowserRouter([
       { path: "bills", Component: Bills },
       {
         path: "bill/:id",
-        Component: BillDetails,
+        element: (
+          <PrivetRout>
+            <BillDetails></BillDetails>
+          </PrivetRout>
+        ),
       },
       {
         path: "mypaybills",
-        Component: MyPayBills,
+        element: (
+          <PrivetRout>
+            <MyPayBills />
+          </PrivetRout>
+        ),
       },
       { path: "login", Component: Login },
       { path: "register", Component: Register },

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Lottie from "lottie-react";
@@ -11,13 +11,18 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/";
 
   // Handle email/password login
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
@@ -27,7 +32,7 @@ const Login = () => {
         console.log("Logged in user:", result.user);
         setSuccess("Login successful!");
         form.reset();
-        navigate("/"); // Redirect to homepage
+        navigate(from, { replace: true });
       })
       .catch((err) => {
         console.error(err.message);
@@ -41,7 +46,7 @@ const Login = () => {
       .then((result) => {
         console.log("Google User:", result.user);
         setSuccess("Logged in with Google!");
-        navigate("/");
+        navigate(from, { replace: true });
       })
       .catch((err) => {
         console.error(err.message);
