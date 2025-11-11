@@ -39,12 +39,7 @@ const BillCard = ({ bill }) => {
         <div className="card-actions justify-end mt-4">
           <Link
             to={`/bills/${_id}`}
-            className="
-              btn btn-sm 
-              bg-gradient-to-r from-primary to-secondary 
-              text-white font-semibold 
-              hover:scale-105 transition-transform duration-300
-              shadow-md hover:shadow-lg
+            className="btn btn-primary
             "
           >
             See Details

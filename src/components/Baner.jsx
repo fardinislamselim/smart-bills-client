@@ -38,12 +38,12 @@ const Banner = () => {
     fetchData();
   }, [instance]);
 
-
   const bgGradient =
     theme === "dark"
-      ? "from-neutral/80 via-base-300 to-base-200"
-      : "from-base-100 via-base-200 to-base-100";
-
+      ? "from-[#0f172a] via-[#1e293b] to-[#0f172a]"
+      : "from-[#eef2ff] via-[#e0e7ff] to-[#eef2ff]"; 
+  
+  
   const overlayGradient =
     theme === "dark"
       ? "from-base-300/70 via-transparent to-transparent"
@@ -109,7 +109,7 @@ const Banner = () => {
                 />
 
                 {/* Floating Tag */}
-                <div className="absolute bottom-4 right-5 sm:right-8 backdrop-blur-md bg-base-100/70 dark:bg-base-300/70 text-primary font-semibold px-4 py-2 rounded-lg shadow-md text-sm">
+                <div className="absolute z-10 bottom-4 right-5 sm:right-8 backdrop-blur-md bg-base-100/70 dark:bg-base-300/70 text-primary font-semibold px-4 py-2 rounded-lg shadow-md text-sm">
                   {bill.category}
                 </div>
               </div>

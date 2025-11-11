@@ -21,7 +21,7 @@ const LatestBills = () => {
   return (
     <div className="container mx-auto py-12 px-4">
       <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-primary">
-        Our Utility Categories
+        Latest Utility Bills
       </h2>
 
       {/* Cards Grid */}
