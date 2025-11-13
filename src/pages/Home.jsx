@@ -6,10 +6,11 @@ import LatestBills from "../components/LatestBills";
 const Home = () => {
   return (
     <div className="min-h-screen bg-base-100">
+      <title>Home | Smart Bill</title>
       <Baner></Baner>
       <main>
-              <CategoryCards></CategoryCards>
-              <LatestBills></LatestBills>
+        <CategoryCards></CategoryCards>
+        <LatestBills></LatestBills>
       </main>
     </div>
   );

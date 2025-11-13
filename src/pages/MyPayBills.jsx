@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import instance from "../hook/useAxios";
 import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
+import Loading from "../components/Loading";
 
 const MyPayBills = () => {
   const { user } = useContext(AuthContext);
@@ -171,9 +172,7 @@ const handleDelete = async (id) => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <span className="loading loading-spinner text-primary"></span>
-          </div>
+          <Loading />
         ) : (
           <div className="overflow-x-auto rounded-lg shadow-lg">
             <table className="table table-zebra w-full">

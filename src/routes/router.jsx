@@ -8,12 +8,13 @@ import MyPayBills from "../pages/MyPayBills";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import PrivetRout from "./PrivetRout";
+import Loading from "../components/Loading";
 
 const router = createBrowserRouter([
   {
     path: "/",
     Component: RootLayout,
-    hydrateFallbackElement: <div>Loading...</div>,
+    hydrateFallbackElement: <Loading />,
     children: [
       {
         index: true,

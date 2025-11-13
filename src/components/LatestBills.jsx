@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import useAxios from "../hook/useAxios";
+import instance from "../hook/useAxios";
 import BillCard from "./BillCard";
 
 const LatestBills = () => {
-  const instance = useAxios();
+  // const instance = useAxios();
   const [bills, setBills] = useState([]);
 
   useEffect(() => {

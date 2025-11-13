@@ -1,18 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router";
-import useAxios from "../hook/useAxios";
 import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
 import { FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
+import instance from "../hook/useAxios";
 
 const BillDetails = () => {
   const { id } = useParams();
   const { user } = useContext(AuthContext);
-  const instance = useAxios();
+
   const [bill, setBill] = useState(null);
   const [isCurrentMonth, setIsCurrentMonth] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // fetch data
+  // Fetch bill details
   useEffect(() => {
     const fetchBill = async () => {
       try {
@@ -23,6 +24,8 @@ const BillDetails = () => {
         setIsCurrentMonth(billMonth === currentMonth);
       } catch (err) {
         console.error("Failed to fetch bill details:", err);
+      } finally {
+        setLoading(false);
       }
     };
     if (id) fetchBill();
@@ -31,36 +34,18 @@ const BillDetails = () => {
   // Handle bill payment
   const handlePayBill = async (e) => {
     e.preventDefault();
-    const from = e.target;
-    const email = from.email.value;
-    const billId = from.billId.value;
-    const username = from.username.value;
-    const amount = from.amount.value;
-    const address = from.address.value;
-    const phone = from.phone.value;
-    const date = from.date.value;
-    const additionalInfo = from.additionalInfo.value;
-
-    console.log({
-      email,
-      billId,
-      username,
-      amount,
-      address,
-      phone,
-      date,
-      additionalInfo,
-    });
+    const form = e.target;
     const payForm = {
-      email,
-      billId,
-      amount,
-      username,
-      address,
-      phone,
-      date,
-      additionalInfo,
+      email: form.email.value,
+      billId: form.billId.value,
+      username: form.username.value,
+      amount: form.amount.value,
+      address: form.address.value,
+      phone: form.phone.value,
+      date: form.date.value,
+      additionalInfo: form.additionalInfo.value,
     };
+
     try {
       await instance.post("/paid-bills", payForm);
       Swal.fire({
@@ -82,8 +67,23 @@ const BillDetails = () => {
     }
   };
 
-  if (!bill)
-    return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-spinner text-primary w-12 h-12"></span>
+      </div>
+    );
+  }
+
+  // Bill not found
+  if (!bill) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600 font-semibold">
+        Bill not found.
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -93,12 +93,14 @@ const BillDetails = () => {
       <p className="text-center text-gray-500 mb-10">
         View your bill details and complete payment easily.
       </p>
+
       <div className="grid md:grid-cols-2 gap-10 items-center">
         <img
           src={bill.image}
           alt={bill.title}
           className="rounded-2xl shadow-lg w-full object-cover h-[400px]"
         />
+
         <div className="bg-white rounded-2xl shadow-md p-6 space-y-4">
           <span className="px-3 py-1 text-sm bg-blue-100 text-blue-600 font-semibold rounded-full">
             {bill.category}
@@ -129,10 +131,10 @@ const BillDetails = () => {
           <button
             onClick={() => window.pay_bill_modal.showModal()}
             disabled={!isCurrentMonth}
-            className={`btn btn-primary w-full cursor-pointer ${
+            className={`btn w-full ${
               isCurrentMonth
-                ? "bg-blue-500 hover:bg-blue-600"
-                : "bg-gray-300 cursor-not-allowed"
+                ? "btn-primary cursor-pointer"
+                : "bg-gray-300 text-gray-600 cursor-not-allowed"
             }`}
           >
             Pay Bill
@@ -145,6 +147,8 @@ const BillDetails = () => {
           )}
         </div>
       </div>
+
+      {/* Modal */}
       <dialog id="pay_bill_modal" className="modal">
         <form
           method="dialog"
@@ -155,7 +159,7 @@ const BillDetails = () => {
             Pay Bill
           </h3>
 
-          <label class="label -mb-2">Email</label>
+          <label className="label -mb-2">Email</label>
           <input
             type="email"
             name="email"
@@ -164,7 +168,7 @@ const BillDetails = () => {
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">Bill Id</label>
+          <label className="label -mb-2">Bill Id</label>
           <input
             type="text"
             name="billId"
@@ -173,7 +177,7 @@ const BillDetails = () => {
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">Amount</label>
+          <label className="label -mb-2">Amount</label>
           <input
             type="number"
             name="amount"
@@ -182,16 +186,16 @@ const BillDetails = () => {
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">User Name</label>
+          <label className="label -mb-2">User Name</label>
           <input
             type="text"
             name="username"
-            value={user?.displayName}
+            value={user?.displayName || ""}
             readOnly
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">Address</label>
+          <label className="label -mb-2">Address</label>
           <input
             type="text"
             name="address"
@@ -199,7 +203,7 @@ const BillDetails = () => {
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">Phone</label>
+          <label className="label -mb-2">Phone</label>
           <input
             type="text"
             name="phone"
@@ -207,7 +211,7 @@ const BillDetails = () => {
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">Date</label>
+          <label className="label -mb-2">Date</label>
           <input
             type="date"
             name="date"
@@ -216,7 +220,7 @@ const BillDetails = () => {
             className="input input-bordered w-full"
           />
 
-          <label class="label -mb-2">Date</label>
+          <label className="label -mb-2">Additional Info</label>
           <textarea
             name="additionalInfo"
             placeholder="Additional info"
