@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       },
       { path: "bills", Component: Bills },
       {
-        path: "bills/:id",
+        path: "bill/:id",
         element: (
           <PrivetRout>
             <BillDetails></BillDetails>

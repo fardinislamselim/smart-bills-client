@@ -94,7 +94,7 @@ const Banner = () => {
                   </div>
 
                   <Link
-                    to={`/bills/${bill._id}`}
+                    to={`/bill/${bill._id}`}
                     className="btn btn-primary mt-6 px-6 py-2 text-base rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
                   >
                     View Details

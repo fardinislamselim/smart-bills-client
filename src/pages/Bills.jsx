@@ -93,7 +93,7 @@ const BillsPage = () => {
                   Amount: ${bill.amount}
                 </p>
                 <Link
-                  to={`/bills/${bill._id}`}
+                  to={`/bill/${bill._id}`}
                   className="mt-auto  btn btn-primary "
                 >
                   See Details

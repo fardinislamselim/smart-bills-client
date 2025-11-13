@@ -38,7 +38,7 @@ const BillCard = ({ bill }) => {
         {/* Action */}
         <div className="card-actions justify-end mt-4">
           <Link
-            to={`/bills/${_id}`}
+            to={`/bill/${_id}`}
             className="btn btn-primary
             "
           >
