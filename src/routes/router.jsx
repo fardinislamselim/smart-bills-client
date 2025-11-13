@@ -9,6 +9,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import PrivetRout from "./PrivetRout";
 import Loading from "../components/Loading";
+import ErrorPage from "../pages/ErrorPage";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,7 @@ const router = createBrowserRouter([
       },
       { path: "login", Component: Login },
       { path: "register", Component: Register },
+      { path: "*", Component: ErrorPage },
     ],
   },
 ]);

@@ -5,13 +5,11 @@ import { FcGoogle } from "react-icons/fc";
 import Lottie from "lottie-react";
 import loginAnim from "../lotties/login.json";
 import { AuthContext } from "../provider/AuthProvider";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const { signInUser, googleLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,8 +18,6 @@ const Login = () => {
   // Handle email/password login
   const handleLogin = (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     const form = e.target;
     const email = form.email.value;
@@ -30,13 +26,27 @@ const Login = () => {
     signInUser(email, password)
       .then((result) => {
         console.log("Logged in user:", result.user);
-        setSuccess("Login successful!");
         form.reset();
         navigate(from, { replace: true });
+        toast.success("Welcome back! 🎉");
       })
       .catch((err) => {
         console.error(err.message);
-        setError(err.message);
+        let message = err.message;
+
+        if (message.includes("auth/invalid-credential")) {
+          toast.error("Incorrect email or password. Please try again.");
+        } else if (message.includes("auth/user-not-found")) {
+          toast.error(
+            "No account found with this email. Please register first."
+          );
+        } else if (message.includes("auth/wrong-password")) {
+          toast.error("Invalid password. Please try again.");
+        } else if (message.includes("auth/too-many-requests")) {
+          toast.error("Too many failed attempts. Try again later.");
+        } else {
+          toast.error("Login failed. Please try again.");
+        }
       });
   };
 
@@ -45,17 +55,18 @@ const Login = () => {
     googleLogin()
       .then((result) => {
         console.log("Google User:", result.user);
-        setSuccess("Logged in with Google!");
+        toast.success("Logged in with Google! ✅");
         navigate(from, { replace: true });
       })
-      .catch((err) => {
-        console.error(err.message);
-        setError(err.message);
+      .catch(() => {
+        toast.error("Google login failed. Please try again.");
       });
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row justify-center items-center bg-base-200 p-5">
+      <Toaster position="top-center" reverseOrder={false} />
+
       {/* Lottie Animation */}
       <div className="w-full lg:w-1/2 flex justify-center">
         <Lottie animationData={loginAnim} loop={true} className="w-3/4" />
@@ -101,12 +112,6 @@ const Login = () => {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-
-          {/* Error / Success */}
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          {success && (
-            <p className="text-green-500 text-sm text-center">{success}</p>
-          )}
 
           {/* Submit Button */}
           <div className="form-control mt-6">

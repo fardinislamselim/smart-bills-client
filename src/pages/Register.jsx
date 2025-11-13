@@ -5,12 +5,12 @@ import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router";
 import registerAnim from "../lotties/login.json";
 import { AuthContext } from "../provider/AuthProvider";
+import toast, { Toaster } from "react-hot-toast";
 
 const Register = () => {
-  const { createUser, updateUserProfile, googleLogin } = useContext(AuthContext);
+  const { createUser, updateUserProfile, googleLogin } =
+    useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = (e) => {
@@ -21,55 +21,60 @@ const Register = () => {
     const photo = form.photo.value;
     const password = form.password.value;
 
-    setError("");
-    setSuccess("");
-
-    // ✅ Password validation
+    // Password validation
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
     if (!passwordRegex.test(password)) {
-      setError(
-        "Password must contain at least 1 uppercase, 1 lowercase letter, and be 6+ characters long."
+      toast.error(
+        "Password must contain at least one uppercase, one lowercase letter, and be 6+ characters long."
       );
       return;
     }
 
-    // ✅ Create user in Firebase
+    // Create user
     createUser(email, password)
       .then((result) => {
         const user = result.user;
-        console.log("New User:", user);
-        setSuccess("Account created successfully!");
-
-        // ✅ Update user profile
         updateUserProfile({ displayName: name, photoURL: photo })
-          .then(() => console.log("Profile updated"))
-          .catch((err) => console.error(err.message));
-
-        form.reset();
-        navigate("/"); // Redirect to homepage
+          .then(() => {
+            toast.success("Account created successfully! 🎉");
+            form.reset();
+            navigate("/");
+          })
+          .catch(() => {
+            toast.error("Failed to update profile. Please try again.");
+          });
       })
       .catch((err) => {
-        console.error(err.message);
-        setError(err.message);
+        let message = err.message;
+        if (message.includes("auth/email-already-in-use")) {
+          toast.error(
+            "This email is already registered. Please log in instead."
+          );
+        } else if (message.includes("auth/invalid-email")) {
+          toast.error("Invalid email format. Please enter a valid address.");
+        } else if (message.includes("auth/weak-password")) {
+          toast.error("Password is too weak. Try a stronger one.");
+        } else {
+          toast.error("Registration failed. Please try again.");
+        }
       });
   };
 
-  // ✅ Handle Google Login
   const handleGoogleLogin = () => {
     googleLogin()
-      .then((result) => {
-        console.log("Google User:", result.user);
-        setSuccess("Logged in with Google!");
+      .then(() => {
+        toast.success("Logged in with Google! ✅");
         navigate("/");
       })
-      .catch((err) => {
-        console.error(err.message);
-        setError(err.message);
+      .catch(() => {
+        toast.error("Google login failed. Please try again.");
       });
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row justify-center items-center bg-base-200 p-5">
+      <Toaster position="top-center" reverseOrder={false} />
+
       {/* Lottie Animation */}
       <div className="w-full lg:w-1/2 flex justify-center">
         <Lottie animationData={registerAnim} loop={true} className="w-3/4" />
@@ -82,7 +87,6 @@ const Register = () => {
         </h2>
 
         <form onSubmit={handleRegister} className="space-y-4">
-          {/* Name */}
           <div className="form-control">
             <label className="label">
               <span className="label-text font-medium">Full Name</span>
@@ -96,7 +100,6 @@ const Register = () => {
             />
           </div>
 
-          {/* Email */}
           <div className="form-control">
             <label className="label">
               <span className="label-text font-medium">Email</span>
@@ -110,7 +113,6 @@ const Register = () => {
             />
           </div>
 
-          {/* Photo URL */}
           <div className="form-control">
             <label className="label">
               <span className="label-text font-medium">Photo URL</span>
@@ -124,7 +126,6 @@ const Register = () => {
             />
           </div>
 
-          {/* Password */}
           <div className="form-control relative">
             <label className="label">
               <span className="label-text font-medium">Password</span>
@@ -147,19 +148,11 @@ const Register = () => {
             </label>
           </div>
 
-          {/* Error / Success Messages */}
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          {success && (
-            <p className="text-green-500 text-sm text-center">{success}</p>
-          )}
-
-          {/* Submit Button */}
           <div className="form-control mt-6">
             <button className="btn btn-primary w-full">Register</button>
           </div>
         </form>
 
-        {/* Login Redirect */}
         <p className="text-center text-sm mt-4">
           Already have an account?{" "}
           <Link
@@ -170,7 +163,6 @@ const Register = () => {
           </Link>
         </p>
 
-        {/* Google Login */}
         <div className="divider">OR</div>
         <button
           onClick={handleGoogleLogin}
