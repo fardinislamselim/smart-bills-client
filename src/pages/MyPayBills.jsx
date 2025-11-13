@@ -1,13 +1,14 @@
+// MyPayBills.jsx
 import React, { useContext, useEffect, useState } from "react";
 import instance from "../hook/useAxios";
 import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
 import Loading from "../components/Loading";
-// import useAxiosSecure from "../hook/useAxiosSecuer";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const MyPayBills = () => {
   const { user } = useContext(AuthContext);
-  // const instance = useAxiosSecure();
   const [bills, setBills] = useState([]);
   const [selectedBill, setSelectedBill] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +18,6 @@ const MyPayBills = () => {
     phone: "",
     date: "",
   });
-
 
   const [theme, setTheme] = useState(
     document.documentElement.getAttribute("data-theme") || "light"
@@ -34,7 +34,7 @@ const MyPayBills = () => {
     return () => observer.disconnect();
   }, []);
 
-  //Fetch bills
+  // Fetch bills
   const fetchBills = async () => {
     try {
       setLoading(true);
@@ -58,7 +58,7 @@ const MyPayBills = () => {
     0
   );
 
-  //Open update modal
+  // Open update modal
   const openUpdateModal = (bill) => {
     setSelectedBill(bill);
     setFormData({
@@ -73,7 +73,7 @@ const MyPayBills = () => {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  //Update bill
+  // Update bill
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -86,75 +86,95 @@ const MyPayBills = () => {
     }
   };
 
-  //Delete bill
-const handleDelete = async (id) => {
-  const confirm = await Swal.fire({
-    title: "Are you sure?",
-    text: "This bill will be permanently deleted!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, delete it!",
-  });
+  // Delete bill
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This bill will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  if (confirm.isConfirmed) {
-    try {
-      await instance.delete(`/paid-bills/${id}`);
-      Swal.fire("Deleted!", "Bill deleted successfully.", "success");
-      fetchBills();
-    } catch {
-      Swal.fire("Error", "Failed to delete bill.", "error");
+    if (confirm.isConfirmed) {
+      try {
+        await instance.delete(`/paid-bills/${id}`);
+        Swal.fire("Deleted!", "Bill deleted successfully.", "success");
+        fetchBills();
+      } catch {
+        Swal.fire("Error", "Failed to delete bill.", "error");
+      }
     }
-  }
-};
+  };
 
-  // CSV Download
+  // Download PDF report
   const handleDownloadReport = () => {
-    const csvContent = [
-      ["Username", "Email", "Amount", "Address", "Phone", "Date"],
-      ...bills.map((b) => [
-        b.username,
-        b.email,
-        b.amount,
-        b.address,
-        b.phone,
-        b.date ? new Date(b.date).toLocaleDateString() : "",
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n");
+    if (!bills || bills.length === 0) return;
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `my_pay_bills_${user?.email}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text("My Paid Bills Report", 14, 22);
+
+    // Total summary
+    doc.setFontSize(12);
+    doc.text(`Total Bills Paid: ${bills.length}`, 14, 30);
+    doc.text(`Total Amount: ৳${totalAmount.toLocaleString()}`, 14, 36);
+
+    // Table headers
+    const tableColumn = [
+      "Username",
+      "Email",
+      "Amount",
+      "Address",
+      "Phone",
+      "Date",
+    ];
+    const tableRows = bills.map((bill) => [
+      bill.username,
+      bill.email,
+      `৳${bill.amount}`,
+      bill.address,
+      bill.phone,
+      bill.date ? new Date(bill.date).toLocaleDateString() : "",
+    ]);
+
+    // Add table
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 42,
+      theme: "grid",
+      headStyles: {
+        fillColor: theme === "dark" ? [55, 65, 81] : [220, 220, 220],
+      },
+    });
+
+    doc.save(`my_pay_bills_${user?.email}.pdf`);
   };
 
   return (
     <div
       className={
         theme === "dark"
-          ? "bg-gray-900 text-gray-100"
-          : "bg-base-100 text-base-content"
+          ? "bg-gray-900 text-gray-100 min-h-screen"
+          : "bg-base-100 text-base-content min-h-screen"
       }
     >
-      <div
-        className={`py-6 container mx-auto px-4 transition-colors duration-500`}
-      >
-
+      <div className="py-6 container mx-auto px-4 transition-colors duration-500">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6">
           <h2 className="text-2xl font-bold mb-3 sm:mb-0">My Pay Bills</h2>
           <button
             className="btn btn-success text-white"
             onClick={handleDownloadReport}
+            disabled={loading || bills.length === 0}
           >
             Download Report
           </button>
         </div>
 
-
+        {/* Stats */}
         <div
           className={`stats shadow mb-6 ${
             theme === "dark"
@@ -236,10 +256,11 @@ const handleDelete = async (id) => {
             </table>
           </div>
         )}
-        
+
+        {/* Update Modal */}
         <dialog id="update_modal" className="modal">
           <div
-            className={`modal-box bg-base-100 ${
+            className={`modal-box ${
               theme === "dark"
                 ? "bg-gray-900 text-gray-100"
                 : "bg-base-100 text-base-content"
