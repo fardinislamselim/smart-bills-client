@@ -8,7 +8,7 @@ The application ensures a seamless, responsive, and user-friendly experience for
 
 ## 🌐 Live Demo & Repositories
 
-- 🔗 **Live Site:** [👉 https://your-live-site-url.netlify.app](#)
+- 🔗 **Live Site:** [👉 https://smart-bills-manager.web.app/](#)
 - 💻 **Client Repo:** [👉 https://github.com/mdfardinislamselim/smart-bills-client](#)
 - ⚙️ **Server Repo:** [👉 https://github.com/mdfardinislamselim/smart-bills-server](#)
 
