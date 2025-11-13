@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import instance from "../hook/useAxios";
 import Loading from "../components/Loading";
 
 const BillsPage = () => {
-  const navigate = useNavigate();
 
   const [bills, setBills] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -93,12 +92,12 @@ const BillsPage = () => {
                 <p className="text-sm font-semibold mb-3">
                   Amount: ${bill.amount}
                 </p>
-                <button
-                  onClick={() => navigate(`/bills/${bill._id}`)}
-                  className="mt-auto bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                <Link
+                  to={`/bills/${bill._id}`}
+                  className="mt-auto  btn btn-primary "
                 >
                   See Details
-                </button>
+                </Link>
               </div>
             ))
           ) : (

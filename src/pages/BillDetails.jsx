@@ -4,6 +4,9 @@ import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
 import { FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
 import instance from "../hook/useAxios";
+import Loading from "../components/Loading";
+import notFoundAnimation from "../lotties/Loading.json"
+import Lottie from "lottie-react";
 
 const BillDetails = () => {
   const { id } = useParams();
@@ -67,20 +70,48 @@ const BillDetails = () => {
     }
   };
 
+    const [theme, setTheme] = useState(
+      document.documentElement.getAttribute("data-theme") || "light"
+    );
+  
+    useEffect(() => {
+      const observer = new MutationObserver(() => {
+        setTheme(document.documentElement.getAttribute("data-theme"));
+      });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+      return () => observer.disconnect();
+    }, []);
+
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="loading loading-spinner text-primary w-12 h-12"></span>
-      </div>
+      <Loading></Loading>
     );
   }
 
   // Bill not found
   if (!bill) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-600 font-semibold">
-        Bill not found.
+      <div className="min-h-[80vh] flex flex-col items-center justify-center text-center bg-base-200 px-4">
+        <div className="w-64 h-64 mb-6">
+          <Lottie animationData={notFoundAnimation} loop={true} />
+        </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-error mb-2">
+          Bill Not Found 😞
+        </h2>
+        <p className="text-base-content opacity-80 max-w-md mb-6">
+          The bill you’re looking for might have been deleted or is currently
+          unavailable. Please check again later or explore other bills.
+        </p>
+        <a
+          href="/bills"
+          className="btn btn-primary btn-wide shadow-md hover:scale-105 transition-transform"
+        >
+          Back to Bills
+        </a>
       </div>
     );
   }
@@ -101,12 +132,18 @@ const BillDetails = () => {
           className="rounded-2xl shadow-lg w-full object-cover h-[400px]"
         />
 
-        <div className="bg-white rounded-2xl shadow-md p-6 space-y-4">
+        <div
+          className={`rounded-2xl shadow-md p-6 space-y-4 ${
+            theme === "dark"
+              ? "bg-gray-900 text-gray-100"
+              : "bg-base-100 text-base-content"
+          }`}
+        >
           <span className="px-3 py-1 text-sm bg-blue-100 text-blue-600 font-semibold rounded-full">
             {bill.category}
           </span>
 
-          <h2 className="text-2xl font-semibold">{bill.title}</h2>
+          <h2 className="text-2xl font-semibold text-primary">{bill.title}</h2>
           <p className="text-gray-600">{bill.description}</p>
 
           <div className="flex items-center gap-2 text-gray-700">

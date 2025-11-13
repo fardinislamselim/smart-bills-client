@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
 
 const instance = axios.create({
   baseURL: "http://localhost:3000",
@@ -15,5 +15,19 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// export default () => instance;
-export default instance
+instance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const auth = getAuth();
+
+    if (error.response && [401, 403].includes(error.response.status)) {
+      await signOut(auth);
+      localStorage.clear();
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default instance;

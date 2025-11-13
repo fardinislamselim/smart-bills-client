@@ -3,10 +3,11 @@ import instance from "../hook/useAxios";
 import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
 import Loading from "../components/Loading";
+// import useAxiosSecure from "../hook/useAxiosSecuer";
 
 const MyPayBills = () => {
   const { user } = useContext(AuthContext);
-  // const instance = useAxios();
+  // const instance = useAxiosSecure();
   const [bills, setBills] = useState([]);
   const [selectedBill, setSelectedBill] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ const MyPayBills = () => {
     try {
       setLoading(true);
       const { data } = await instance.get(
-        `/paid-bills/user?email=${user?.email}`
+        `/paid-bills/user?email=${user.email}`
       );
       setBills(data || []);
     } catch (err) {
@@ -140,10 +141,10 @@ const handleDelete = async (id) => {
       }
     >
       <div
-        className={`py-6 container mx-auto px-4 min-h-screen transition-colors duration-500`}
+        className={`py-6 container mx-auto px-4 transition-colors duration-500`}
       >
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6">
           <h2 className="text-2xl font-bold mb-3 sm:mb-0">My Pay Bills</h2>
           <button
             className="btn btn-success text-white"
