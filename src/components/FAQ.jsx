@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 
 const FAQ = () => {
     const faqs = [
@@ -30,7 +31,7 @@ const FAQ = () => {
                         Find quick answers to the most common questions about our platform and services.
                     </p>
                     <div className="pt-6">
-                        <button className="btn btn-primary rounded-2xl px-8 shadow-xl shadow-primary/20">Contact Support</button>
+                        <Link to="/help" className="btn btn-primary rounded-2xl px-8 shadow-xl shadow-primary/20">Contact Support</Link>
                     </div>
                 </div>
 

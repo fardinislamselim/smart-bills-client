@@ -130,14 +130,6 @@ const BillDetails = () => {
             </div>
           </div>
 
-          {/* Media/Visual Thumbnails (Dummy Multi-Media) */}
-          <div className="grid grid-cols-4 gap-4">
-            {[bill.image, bill.image, bill.image, bill.image].map((img, i) => (
-                <div key={i} className={`rounded-2xl h-24 overflow-hidden border-2 transition-all cursor-pointer ${i === 0 ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                    <img src={img} className={`w-full h-full object-cover ${i > 0 ? 'sepia-[0.3]' : ''}`} alt="" />
-                </div>
-            ))}
-          </div>
 
           {/* Section: Overview */}
           <section className="space-y-6">
@@ -185,30 +177,7 @@ const BillDetails = () => {
             </div>
           </section>
 
-          {/* Section: Reviews */}
-          <section className="space-y-6">
-            <h2 className="text-3xl font-black text-base-content">User Reviews</h2>
-            <div className="space-y-4">
-                {[1, 2].map((r) => (
-                    <div key={r} className="p-8 bg-base-100 rounded-3xl border border-base-content/5 flex gap-6">
-                        <div className="hidden sm:block">
-                            <div className="w-12 h-12 rounded-2xl bg-base-200 flex items-center justify-center text-primary text-2xl font-black">
-                                {r === 1 ? 'S' : 'R'}
-                            </div>
-                        </div>
-                        <div className="flex-grow space-y-2">
-                            <div className="flex justify-between items-center">
-                                <h4 className="font-black text-base-content">{r === 1 ? 'Sadat Rahman' : 'Rehana Khan'}</h4>
-                                <div className="flex text-warning text-xs gap-1">
-                                    <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
-                                </div>
-                            </div>
-                            <p className="text-base-content/60 font-medium italic">"Great service! I successfully paid my bill without any trouble. Highly recommended platform for all utilities."</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-          </section>
+
         </div>
 
         {/* RIGHT COLUMN: checkout Card */}

@@ -1,5 +1,5 @@
 import Lottie from "lottie-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FaArrowRight, FaEye, FaEyeSlash, FaFacebook, FaGithub, FaShieldAlt } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -7,21 +7,28 @@ import { Link, useNavigate } from "react-router";
 import instance from "../hook/useAxios";
 import registerAnim from "../lotties/login.json";
 import { AuthContext } from "../provider/AuthProvider";
+import { uploadImage } from "../utils/imageUpload";
 
 const Register = () => {
-  const { setLoading, createUser, updateUserProfile, googleLogin, githubLogin, facebookLogin } = useContext(AuthContext);
+  const { user, setLoading, createUser, updateUserProfile, googleLogin, githubLogin, facebookLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
+
+  const handleRegister = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
-    const photo = form.photo.value;
+    const photoFile = form.photo.files[0];
     const password = form.password.value;
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
@@ -34,33 +41,40 @@ const Register = () => {
       return;
     }
 
-    createUser(email, password)
-      .then(() => {
-        updateUserProfile({ displayName: name, photoURL: photo })
-          .then(async () => {
-            // Save user to database
-            const userData = { email, name, image: photo };
-            await instance.put("/users", userData);
+    try {
+      // 1. Upload Image to ImgBB
+      let photoURL = "";
+      if (photoFile) {
+        const uploadRes = await uploadImage(photoFile);
+        if (uploadRes.success) {
+          photoURL = uploadRes.data.display_url;
+        }
+      }
 
-            toast.success("Identity Verified! Welcome ✨", {
-                style: { borderRadius: '1rem', background: '#10b981', color: '#fff' }
-            });
-            form.reset();
-            navigate("/");
-            setLoading(false);
-          })
-          .catch(() => {
-            toast.error("Profile configuration failed.");
-          });
-      })
-      .catch((err) => {
-        let message = "Registration failed.";
-        if (err.code === 'auth/email-already-in-use') message = "Email identity already exists.";
-        toast.error(message, { style: { borderRadius: '1rem' }});
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+      // 2. Create User in Firebase
+      await createUser(email, password);
+      
+      // 3. Update Firebase Profile
+      await updateUserProfile({ displayName: name, photoURL: photoURL });
+
+      // 4. Save User to Database
+      const userData = { email, name, image: photoURL };
+      await instance.put("/users", userData);
+
+      toast.success("Identity Verified! Welcome ✨", {
+          style: { borderRadius: '1rem', background: '#10b981', color: '#fff' }
       });
+      form.reset();
+      navigate("/");
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      let message = "Registration failed.";
+      if (err.code === 'auth/email-already-in-use') message = "Email identity already exists.";
+      toast.error(message, { style: { borderRadius: '1rem' }});
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSocialLogin = (method) => {
@@ -130,9 +144,9 @@ const Register = () => {
 
             <div className="form-control">
               <label className="label px-1">
-                <span className="label-text font-bold text-base-content/70 uppercase text-xs tracking-widest">Photo Token URL</span>
+                <span className="label-text font-bold text-base-content/70 uppercase text-xs tracking-widest">Profile Identity Frame</span>
               </label>
-              <input type="text" name="photo" placeholder="https://unsplash.com/photo..." className="input input-lg bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-secondary/20 transition-all font-medium text-xs truncate" required />
+              <input type="file" name="photo" className="file-input file-input-bordered file-input-secondary w-full bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-secondary/20 transition-all font-medium text-xs" required />
             </div>
 
             <div className="form-control relative">

@@ -1,7 +1,7 @@
 // components/ErrorPage.jsx
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
 import Lottie from "lottie-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import errorAnimation from "../lotties/404 Animation.json";
 
 const ErrorPage = () => {
@@ -22,17 +22,12 @@ useEffect(() => {
 }, []);
 
   return (
-    <div
-      className={`min-h-screen flex flex-col justify-center items-center px-4 ${
-        theme === "dark"
-          ? "bg-gray-900 text-gray-100"
-          : "bg-base-100 text-gray-800"
-      }`}
-    >
-      <title>404 | Smart Bills</title>
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 bg-base-100 text-base-content">
+      <title>Void Horizon | 404 Access Denied</title>
       {/* Lottie Animation */}
-      <div className="w-100 h-100">
-        <Lottie animationData={errorAnimation} loop={true} />
+      <div className="w-96 h-96 relative">
+        <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full"></div>
+        <Lottie animationData={errorAnimation} loop={true} className="relative z-10" />
       </div>
 
       {/* <h1 className="text-6xl font-bold mb-4">404</h1> */}

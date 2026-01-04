@@ -27,21 +27,25 @@ const ManageBills = () => {
 
     const handleDelete = async (id) => {
         const result = await Swal.fire({
-            title: "Delete Provider?",
-            text: "This will remove the bill from the marketplace.",
+            title: "Authorize Revocation?",
+            text: "This will permanently remove the service from the public marketplace.",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonText: "Yes, Remove",
-            confirmButtonColor: "#ef4444"
+            confirmButtonText: "Yes, Revoke Service",
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#6b7280",
+            background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1e293b' : '#fff',
+            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#f8fafc' : '#0f172a',
         });
 
         if (result.isConfirmed) {
             try {
-                // await instance.delete(`/bills/${id}`); // Assuming delete endpoint exists
-                toast.success("Service provision revoked!");
+                await instance.delete(`/bills/${id}`);
+                toast.success("Marketplace provision revoked! 🗑️");
                 setBills(bills.filter(b => b._id !== id));
             } catch (err) {
-                toast.error("Failed to delete.");
+                console.error(err);
+                toast.error("Failed to revoke provision.");
             }
         }
     };

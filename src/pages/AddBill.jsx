@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { FaAlignLeft, FaArrowLeft, FaDollarSign, FaFileInvoice, FaImage, FaMapMarkerAlt, FaPlus, FaTag } from "react-icons/fa";
+import { FaAlignLeft, FaArrowLeft, FaCalendarAlt, FaDollarSign, FaFileInvoice, FaImage, FaMapMarkerAlt, FaPlus, FaTag } from "react-icons/fa";
 import { Link, useNavigate } from "react-router";
 import instance from "../hook/useAxios";
+import { uploadImage } from "../utils/imageUpload";
 
 const AddBill = () => {
     const [loading, setLoading] = useState(false);
@@ -14,10 +15,21 @@ const AddBill = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
+            // 1. Upload Image to ImgBB
+            const imageFile = data.image[0];
+            const uploadRes = await uploadImage(imageFile);
+            
+            if (!uploadRes.success) {
+                throw new Error("Image upload failed");
+            }
+
+            const photoURL = uploadRes.data.display_url;
+
             const billData = {
                 ...data,
+                image: photoURL,
                 amount: parseFloat(data.amount),
-                date: new Date().toISOString(),
+                date: data.date,
                 rating: 0,
                 reviewCount: 0
             };
@@ -86,6 +98,19 @@ const AddBill = () => {
                             {errors.category && <span className="text-error text-[10px] mt-1 font-bold">Category is required</span>}
                         </div>
 
+                        {/* Date */}
+                        <div className="form-control">
+                            <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1 flex items-center gap-2">
+                                <FaCalendarAlt className="text-primary" /> Billing Date
+                            </label>
+                            <input 
+                                type="date"
+                                {...register("date", { required: true })}
+                                className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium"
+                            />
+                            {errors.date && <span className="text-error text-[10px] mt-1 font-bold">Date is required</span>}
+                        </div>
+
                         {/* Amount */}
                         <div className="form-control">
                             <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1 flex items-center gap-2">
@@ -115,16 +140,15 @@ const AddBill = () => {
                             {errors.location && <span className="text-error text-[10px] mt-1 font-bold">Location is required</span>}
                         </div>
 
-                        {/* Image URL */}
+                        {/* Image Upload */}
                         <div className="md:col-span-2 form-control">
                             <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1 flex items-center gap-2">
-                                <FaImage className="text-primary" /> Provider Image URL
+                                <FaImage className="text-primary" /> Provider Identity Frame (Upload)
                             </label>
                             <input 
-                                type="text"
+                                type="file"
                                 {...register("image", { required: true })}
-                                placeholder="https://unsplash.com/photos/..."
-                                className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium text-xs italic"
+                                className="file-input file-input-bordered file-input-primary w-full bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium"
                             />
                             {errors.image && <span className="text-error text-[10px] mt-1 font-bold">Visual token is required</span>}
                         </div>

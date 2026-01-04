@@ -46,8 +46,16 @@ const DashboardLayout = () => {
 
     return (
         <div className="min-h-screen bg-base-200 flex">
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+                    onClick={() => setSidebarOpen(false)}
+                ></div>
+            )}
+
             {/* Sidebar */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-base-100 border-r border-base-content/5 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0`}>
+            <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-base-100 border-r border-base-content/5 transition-transform duration-300 ease-in-out transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0`}>
                 <div className="h-full flex flex-col">
                     {/* Sidebar Header */}
                     <div className="p-8 border-b border-base-content/5 flex items-center gap-3">

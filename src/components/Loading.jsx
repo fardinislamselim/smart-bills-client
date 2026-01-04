@@ -1,6 +1,5 @@
-import React from "react";
 import Lottie from "lottie-react";
-import loadingAnimation from "../lotties/loading.json";
+import loadingAnimation from "../lotties/Loading.json";
 const Loading = () => {
   return (
     <div className="flex flex-col w-full justify-center items-center min-h-screen bg-base-200 px-4">

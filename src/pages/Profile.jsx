@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { FaCamera, FaEnvelope, FaIdBadge, FaMapMarkerAlt, FaSave, FaShieldAlt } from "react-icons/fa";
 import instance from "../hook/useAxios";
 import { AuthContext } from "../provider/AuthProvider";
+import { uploadImage } from "../utils/imageUpload";
 
 const Profile = () => {
     const { user, updateUserProfile } = useContext(AuthContext);
@@ -17,23 +18,36 @@ const Profile = () => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
+            let photoURL = formData.photoURL;
+            
+            // Check if a new file was selected
+            const fileInput = e.target.photo;
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const uploadRes = await uploadImage(fileInput.files[0]);
+                if (uploadRes.success) {
+                    photoURL = uploadRes.data.display_url;
+                }
+            }
+
             await updateUserProfile({
                 displayName: formData.displayName,
-                photoURL: formData.photoURL
+                photoURL: photoURL
             });
             
             // Also update in DB
             await instance.put("/users", {
                 email: user?.email,
                 name: formData.displayName,
-                image: formData.photoURL,
+                image: photoURL,
                 phone: formData.phone,
                 bio: formData.bio
             });
 
             toast.success("Profile Updated Globally! 🚀");
             setIsEditing(false);
+            setFormData(prev => ({ ...prev, photoURL }));
         } catch (err) {
+            console.error(err);
             toast.error("Failed to update profile.");
         }
     };
@@ -115,12 +129,11 @@ const Profile = () => {
                                     />
                                 </div>
                                 <div className="form-control">
-                                    <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1">Avatar Token URL</label>
+                                    <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1">Identity Frame (Upload)</label>
                                     <input 
-                                        type="text" 
-                                        className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20"
-                                        value={formData.photoURL}
-                                        onChange={(e) => setFormData({...formData, photoURL: e.target.value})}
+                                        type="file" 
+                                        name="photo"
+                                        className="file-input file-input-bordered file-input-primary w-full bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20"
                                     />
                                 </div>
                                 <div className="md:col-span-2 form-control">

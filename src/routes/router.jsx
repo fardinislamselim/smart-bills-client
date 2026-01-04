@@ -11,11 +11,14 @@ import Register from "../pages/Register";
 import PrivetRout from "./PrivetRout";
 
 import DashboardLayout from "../layout/DashboardLayout";
+import About from "../pages/About";
 import AddBill from "../pages/AddBill";
 import DashboardHome from "../pages/DashboardHome";
+import Help from "../pages/Help";
 import ManageBills from "../pages/ManageBills";
 import ManageUsers from "../pages/ManageUsers";
 import Profile from "../pages/Profile";
+import Settings from "../pages/Settings";
 import AdminRoute from "./AdminRoute";
 
 const router = createBrowserRouter([
@@ -29,6 +32,8 @@ const router = createBrowserRouter([
         Component: Home,
       },
       { path: "bills", Component: Bills },
+      { path: "about", Component: About },
+      { path: "help", Component: Help },
       {
         path: "bill/:id",
         element: (
@@ -53,6 +58,7 @@ const router = createBrowserRouter([
         { path: "user-home", element: <DashboardHome /> },
         { path: "admin-home", element: <AdminRoute><DashboardHome /></AdminRoute> },
         { path: "profile", element: <Profile /> },
+        { path: "settings", element: <Settings /> },
         { path: "manage-users", element: <AdminRoute><ManageUsers /></AdminRoute> },
         { path: "manage-bills", element: <AdminRoute><ManageBills /></AdminRoute> },
         { path: "add-bill", element: <AdminRoute><AddBill /></AdminRoute> },

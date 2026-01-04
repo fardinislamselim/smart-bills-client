@@ -1,5 +1,5 @@
 import Lottie from "lottie-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FaArrowRight, FaEye, FaEyeSlash, FaFacebook, FaGithub, FaUserShield } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -9,7 +9,7 @@ import loginAnim from "../lotties/login.json";
 import { AuthContext } from "../provider/AuthProvider";
 
 const Login = () => {
-  const { setLoading, signInUser, googleLogin, githubLogin, facebookLogin } = useContext(AuthContext);
+  const { user, setLoading, signInUser, googleLogin, githubLogin, facebookLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailValue, setEmailValue] = useState("");
@@ -17,6 +17,12 @@ const Login = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   const from = location.state?.from?.pathname || "/";
 
