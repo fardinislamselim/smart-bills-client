@@ -6,7 +6,7 @@ import {
     FaCog,
     FaCreditCard,
     FaHome,
-    FaListAlt, FaSignOutAlt,
+    FaListAlt, FaPlus, FaSignOutAlt,
     FaUser,
     FaUsers
 } from "react-icons/fa";
