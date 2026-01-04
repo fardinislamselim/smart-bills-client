@@ -6,9 +6,10 @@ The application ensures a seamless, responsive, and user-friendly experience for
 
 ---
 
-## 🌐 Live Demo & Repositories
+## 🌐 Live Demo & API
 
-- 🔗 **Live Site:** [👉 https://smart-bills-manager.web.app/](https://smart-bills-manager.web.app/)
+- 🔗 **Live Site:** [👉 https://smart-bills-manager.netlify.app/](https://smart-bills-manager.netlify.app/)
+- ⚙️ **Backend API:** [👉 https://smart-bill-upgered.vercel.app/](https://smart-bill-upgered.vercel.app/)
 - 💻 **Client Repo:** [👉 https://github.com/mdfardinislamselim/smart-bills-client](https://github.com/mdfardinislamselim/smart-bills-client)
 - ⚙️ **Server Repo:** [👉 https://github.com/mdfardinislamselim/smart-bills-server](https://github.com/mdfardinislamselim/smart-bills-server)
 
@@ -17,7 +18,8 @@ The application ensures a seamless, responsive, and user-friendly experience for
 ## 🎯 Key Features
 
 - 🔐 **User Authentication:** Register & Login via Email/Password and Google (Firebase).
-- 💰 **Bill Payment System:** Pay only current-month bills, with auto-filled Pay Bill form.
+- �️ **Image Hosting:** Integrated with **ImgBB API** for secure, persistent image storage (Register & Add Bill).
+- �💰 **Bill Payment System:** Pay only current-month bills, with auto-filled Pay Bill form.
 - 📄 **PDF Report Generation:** Download paid bill reports (jsPDF + AutoTable).
 - ⚙️ **CRUD Operations:** Update/Delete paid bills dynamically with modals.
 - 🌗 **Dark/Light Theme Toggle** for better accessibility and user control.
@@ -31,10 +33,12 @@ The application ensures a seamless, responsive, and user-friendly experience for
 ## 🖼️ Layout Overview
 
 ### 🧩 Navbar
+
 **Before Login:** Home | Bills | Login | Register  
-**After Login:** Home | Bills | My Pay Bills | Profile Avatar | Logout  
+**After Login:** Home | Bills | My Pay Bills | Profile Avatar | Logout
 
 ### 🏠 Home Page
+
 - Image **Carousel Slider** (3+ slides)
 - **Category Section**: Electricity, Gas, Water, Internet
 - **Recent Bills**: Display 6 latest bills from MongoDB
@@ -42,41 +46,45 @@ The application ensures a seamless, responsive, and user-friendly experience for
 - **What Our Users Say**: Thousands of users trust us to simplify their monthly bill payments.
 
 ### 💵 Bills Page (Public)
+
 - Displays all bills in **3-column grid layout**
 - **Category Filter Dropdown**
 
-
 ### 📋 Bill Details Page (Private)
+
 - Displays full bill info
 - **Pay Bill Button** enabled only if bill date is in the current month
 - Pay Bill Modal with pre-filled data (Email, Bill ID, Amount, Date)
 
 ### 🧾 My Pay Bills Page (Private)
+
 - Logged-in user’s paid bills in table view
 - **Update/Delete** options (modal-based)
 - **PDF Report Download**
 - Displays **Total Bills Paid** & **Total Amount Paid**
-
 
 ---
 
 ## 🛠️ Tech Stack
 
 **Frontend (Client):**
-- React (Vite)
-- React Router
+
+- React 19 (Vite)
+- React Router 7
 - Firebase Authentication
 - Axios (with interceptors)
-- Tailwind CSS / DaisyUI
+- Tailwind CSS 4 / DaisyUI 5
 - jsPDF + jsPDF-AutoTable
-- React Toastify / SweetAlert2
-- Framer Motion / Lottie React (animations)
+- ImgBB API (Image Hosting)
+- React Hot Toast / SweetAlert2
+- Framer Motion / Lottie React
 
 **Backend (Server):**
+
 - Node.js + Express.js
 - MongoDB
-- dotenv, cors, bcrypt
-
+- Firebase Admin SDK
+- Deployment: Vercel
 
 ## 📦 Project Dependencies
 
