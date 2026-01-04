@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@theme {
+  --font-sans: "Inter", "Outfit", sans-serif;
+}
+
 /* 🌞 LIGHT THEME */
 @plugin "daisyui/theme" {
   name: "mytheme";
@@ -8,25 +12,29 @@
   color-scheme: light;
 
   --color-base-100: #ffffff;
-  --color-base-200: #f3f4f6;
-  --color-base-300: #e5e7eb;
-  --color-base-content: #1f2937;
+  --color-base-200: #f8fafc;
+  --color-base-300: #f1f5f9;
+  --color-base-content: #0f172a;
 
-  --color-primary: #3b82f6; /* blue-500 */
+  --color-primary: #6366f1; /* Indigo 500 */
   --color-primary-content: #ffffff;
 
-  --color-secondary: #f59e0b; /* amber-500 */
-  --color-secondary-content: #1f2937;
+  --color-secondary: #f43f5e; /* Rose 500 */
+  --color-secondary-content: #ffffff;
 
-  --color-accent: #10b981; /* emerald-500 */
+  --color-accent: #10b981; /* Emerald 500 */
   --color-accent-content: #ffffff;
 
-  --color-neutral: #374151; /* gray-700 */
-  --color-neutral-content: #f3f4f6;
+  --color-neutral: #1e293b; /* Slate 800 */
+  --color-neutral-content: #f8fafc;
+
+  --radius-selector: 1rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
 
   --color-info: #0ea5e9;
-  --color-success: #22c55e;
-  --color-warning: #facc15;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
   --color-error: #ef4444;
 }
 
@@ -34,26 +42,74 @@
 @plugin "daisyui/theme" {
   name: "mytheme-dark";
   color-scheme: dark;
+  --color-base-100: #0f172a; /* Slate 900 */
+  --color-base-200: #1e293b; /* Slate 800 */
+  --color-base-300: #334155; /* Slate 700 */
+  --color-base-content: #f8fafc;
 
-  --color-base-100: #1e293b;
-  --color-base-200: #111827;
-  --color-base-300: #0f172a;
-  --color-base-content: #f3f4f6;
+  --color-primary: #818cf8; /* Indigo 400 */
+  --color-primary-content: #0f172a;
 
-  --color-primary: #60a5fa;
-  --color-primary-content: #1e293b;
+  --color-secondary: #fb7185; /* Rose 400 */
+  --color-secondary-content: #0f172a;
 
-  --color-secondary: #fbbf24;
-  --color-secondary-content: #1f2937;
+  --color-accent: #34d399; /* Emerald 400 */
+  --color-accent-content: #0f172a;
 
-  --color-accent: #34d399;
-  --color-accent-content: #1e293b;
+  --color-neutral: #f8fafc;
+  --color-neutral-content: #0f172a;
 
-  --color-neutral: #9ca3af;
-  --color-neutral-content: #111827;
+  --radius-selector: 1rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
 
   --color-info: #38bdf8;
   --color-success: #4ade80;
-  --color-warning: #fde047;
+  --color-warning: #fbbf24;
   --color-error: #f87171;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply antialiased text-base-content bg-base-100 transition-colors duration-300;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-base-200;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full hover:bg-primary/50 transition-colors;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply transition-all duration-300 active:scale-95;
+  }
+
+  .card {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .input,
+  .select,
+  .textarea {
+    @apply transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary;
+  }
+
+  .premium-gradient {
+    @apply bg-linear-to-br from-primary via-primary to-secondary;
+  }
+
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
 }

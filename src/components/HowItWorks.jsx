@@ -1,81 +1,76 @@
-import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  FaUserCheck,
-  FaFileInvoiceDollar,
-  FaRegCreditCard,
-  FaChartLine,
+    FaChartLine,
+    FaFileInvoiceDollar,
+    FaRegCreditCard,
+    FaUserCheck,
 } from "react-icons/fa";
 
 const steps = [
   {
-    icon: <FaUserCheck className="w-10 h-10 text-primary mb-4" />,
-    title: "Register / Login",
-    description:
-      "Create an account or login to manage your utility bills securely.",
+    icon: <FaUserCheck />,
+    title: "1. Secure Onboard",
+    description: "Create your encrypted account and set up your utility profile in seconds.",
   },
   {
-    icon: <FaFileInvoiceDollar className="w-10 h-10 text-primary mb-4" />,
-    title: "View Bills",
-    description:
-      "Check all available bills: electricity, gas, water, internet, etc.",
+    icon: <FaFileInvoiceDollar />,
+    title: "2. Connect Bills",
+    description: "Link your service providers to see all current dues in one dashboard.",
   },
   {
-    icon: <FaRegCreditCard className="w-10 h-10 text-primary mb-4" />,
-    title: "Pay Bills",
-    description:
-      "Pay only the current month’s bills quickly and safely online.",
+    icon: <FaRegCreditCard />,
+    title: "3. One-Click Pay",
+    description: "Choose your payment method and settle your dues instantly and safely.",
   },
   {
-    icon: <FaChartLine className="w-10 h-10 text-primary mb-4" />,
-    title: "Track Payments",
-    description:
-      "Monitor your paid bills, download reports, and keep track of expenses.",
+    icon: <FaChartLine />,
+    title: "4. Smart Insights",
+    description: "Track your monthly trends and download receipts for your records.",
   },
 ];
 
-
-
 const HowItWorks = () => {
-    const [theme, setTheme] = useState(
-      document.documentElement.getAttribute("data-theme") || "light"
-    );
-    useEffect(() => {
-      const observer = new MutationObserver(() => {
-        setTheme(document.documentElement.getAttribute("data-theme"));
-      });
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ["data-theme"],
-      });
-      return () => observer.disconnect();
-    }, []);
   return (
-    <section className="py-16">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-primary text-center mb-12">How It Works</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
-            <motion.div
-              key={index}
-              className={`p-6 rounded-xl shadow hover:shadow-lg text-center transition-transform duration-300 hover:scale-105 ${
-                theme === "dark"
-                  ? "bg-gray-900 text-gray-100"
-                  : "bg-base-100 text-base-content"
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-            >
+    <section className="py-24 relative overflow-hidden">
+      {/* Connector Line (Desktop) */}
+      <div className="hidden lg:block absolute top-[60%] left-[10%] right-[10%] h-[2px] bg-linear-to-r from-transparent via-primary/20 to-transparent"></div>
+
+      <div className="text-center mb-20 space-y-4">
+        <h2 className="text-4xl md:text-6xl font-black text-base-content tracking-tighter">
+          Master the <span className="text-primary italic">Process</span>
+        </h2>
+        <p className="text-base-content/60 font-medium text-lg max-w-2xl mx-auto">
+          We've simplified the complex world of utility management into four easy steps.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
+        {steps.map((step, index) => (
+          <motion.div
+            key={index}
+            className="group flex flex-col items-center text-center space-y-6"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: index * 0.15 }}
+          >
+            <div className="w-24 h-24 rounded-[2rem] bg-base-200 flex items-center justify-center text-4xl text-primary shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-500 scale-100 group-hover:scale-110 rotate-0 group-hover:rotate-6">
               {step.icon}
-              <h3 className="text-xl text-primary font-semibold mb-2">
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-base-content tracking-tight">
                 {step.title}
               </h3>
-              <p className="text-gray-600">{step.description}</p>
-            </motion.div>
-          ))}
-        </div>
+              <p className="text-base-content/60 font-medium leading-relaxed">
+                {step.description}
+              </p>
+            </div>
+            
+            {/* Step indicator for mobile */}
+            <div className="lg:hidden text-xs font-black text-primary/30 uppercase tracking-[0.2em]">Step 0{index + 1}</div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );

@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuth, signOut } from "firebase/auth";
 
 const instance = axios.create({
-  baseURL: "https://smart-bills-server-nine.vercel.app",
+  baseURL: "http://localhost:3000",
 });
 
 instance.interceptors.request.use(async (config) => {

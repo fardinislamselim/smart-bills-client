@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
-import instance from "../hook/useAxios";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Typewriter } from "react-simple-typewriter";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import instance from "../hook/useAxios";
 
 const Banner = () => {
   const [bills, setBills] = useState([]);
@@ -37,85 +37,75 @@ const Banner = () => {
     fetchData();
   }, []);
 
-  const bgGradient =
-    theme === "dark"
-      ? "from-[#0f172a] via-[#1e293b] to-[#0f172a]"
-      : "from-[#eef2ff] via-[#e0e7ff] to-[#eef2ff]";
-
-  const overlayGradient =
-    theme === "dark"
-      ? "from-base-300/70 via-transparent to-transparent"
-      : "from-base-100/60 via-transparent to-transparent";
-
   return (
-    <div
-      className={`relative w-full overflow-hidden bg-gradient-to-r ${bgGradient} transition-colors duration-500`}
-    >
+    <div className="relative w-full overflow-hidden rounded-[3rem] mt-4 mb-4">
       {bills.length > 0 ? (
         <Swiper
           modules={[Autoplay, Pagination, Navigation]}
           slidesPerView={1}
-          spaceBetween={30}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          spaceBetween={0}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           navigation={true}
           loop={bills.length > 1}
-          className="h-fit"
+          className="banner-swiper h-full"
         >
           {bills.map((bill) => (
             <SwiperSlide key={bill._id}>
-              <div className="flex flex-col-reverse md:flex-row items-center justify-between max-w-7xl mx-auto px-6 md:px-10 py-10 md:py-16 gap-10">
-                <div className="flex-1 text-center md:text-left space-y-5">
-                  <h1 className="text-3xl md:text-5xl font-extrabold text-primary drop-shadow-sm leading-tight">
-                    <Typewriter
-                      words={[bill.title]}
-                      loop={1}
-                      cursor
-                      cursorStyle="_"
-                      typeSpeed={70}
-                      deleteSpeed={50}
-                      delaySpeed={2000}
-                    />
-                  </h1>
-
-                  <p className="text-base md:text-lg text-base-content/80 leading-relaxed max-w-lg mx-auto md:mx-0">
-                    {bill.description?.length > 180
-                      ? bill.description.slice(0, 180) + "..."
-                      : bill.description}
-                  </p>
-
-                  <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 text-sm font-medium text-base-content/70">
-                    <span className="badge badge-primary capitalize">
-                      {bill.category}
-                    </span>
-                    <span>📅 {bill.date}</span>
-                    <span>💰 {bill.amount} BDT</span>
-                    <span>📍 {bill.location}</span>
-                  </div>
-
-                  <Link
-                    to={`/bill/${bill._id}`}
-                    className="btn btn-primary mt-6 px-6 py-2 text-base rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
-                  >
-                    View Details
-                  </Link>
+              <div className="relative min-h-[400px] md:min-h-[550px] flex items-center overflow-hidden">
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 z-0">
+                  <img src={bill.image} alt={bill.title} className="w-full h-full object-cover scale-105" />
+                  <div className="absolute inset-0 bg-base-100/40 dark:bg-base-100/80 backdrop-blur-[2px]"></div>
+                  <div className="absolute inset-0 bg-linear-to-r from-base-100 via-base-100/60 to-transparent"></div>
                 </div>
 
-                <div className="flex-1 relative flex justify-center items-center">
-                  <div
-                    className={`absolute w-64 h-64 sm:w-80 sm:h-80 md:w-[420px] md:h-[420px] rounded-full blur-3xl opacity-40 ${
-                      theme === "dark" ? "bg-primary/20" : "bg-secondary/30"
-                    }`}
-                  ></div>
+                <div className="container mx-auto px-8 md:px-16 relative z-10 grid md:grid-cols-2 gap-8 items-center">
+                  <div className="space-y-6 py-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md">
+                      <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">{bill.category}</span>
+                    </div>
 
-                  <img
-                    src={bill.image}
-                    alt={bill.title}
-                    className={`relative z-10 w-60 h-60 sm:w-72 sm:h-72 md:w-[380px] md:h-[380px] object-cover rounded-2xl shadow-xl border-4 border-base-200 dark:border-base-300 hover:scale-105 transition-transform duration-500`}
-                  />
+                    <h1 className="text-3xl md:text-5xl font-black text-base-content leading-tight tracking-tighter">
+                      <Typewriter
+                        words={[bill.title]}
+                        loop={1}
+                        cursor
+                        cursorStyle="|"
+                        typeSpeed={70}
+                        deleteSpeed={50}
+                        delaySpeed={2000}
+                      />
+                    </h1>
 
-                  <div className="absolute z-10 bottom-4 right-5 sm:right-8 backdrop-blur-md bg-base-100/70 dark:bg-base-300/70 text-primary font-semibold px-4 py-2 rounded-lg shadow-md text-sm">
-                    {bill.category}
+                    <p className="text-base md:text-lg text-base-content/70 leading-relaxed max-w-xl font-medium">
+                      {bill.description?.length > 120
+                        ? bill.description.slice(0, 120) + "..."
+                        : bill.description}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-6">
+                      <Link
+                        to={`/bill/${bill._id}`}
+                        className="btn btn-primary rounded-2xl px-8 shadow-2xl shadow-primary/30 hover:scale-105 transition-all duration-300"
+                      >
+                        Get Started
+                      </Link>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">Pricing approx.</span>
+                        <span className="text-xl font-black text-primary">{bill.amount} <small className="text-xs">BDT</small></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="hidden md:block relative animate-float">
+                    <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full scale-125"></div>
+                    <img
+                      src={bill.image}
+                      alt={bill.title}
+                      className="relative z-10 w-full max-w-[400px] aspect-square object-cover rounded-[2.5rem] shadow-2xl border-4 border-white dark:border-base-300 rotate-2 group-hover:rotate-0 transition-transform duration-700 mx-auto"
+                    />
                   </div>
                 </div>
               </div>
@@ -123,14 +113,10 @@ const Banner = () => {
           ))}
         </Swiper>
       ) : (
-        <div className="flex justify-center flex-col items-center">
-          <span className="loading loading-dots loading-xl"></span>
+        <div className="min-h-[500px] flex justify-center items-center bg-base-200">
+          <span className="loading loading-spinner loading-xl text-primary"></span>
         </div>
       )}
-
-      <div
-        className={`absolute inset-0 bg-gradient-to-t ${overlayGradient} pointer-events-none transition-colors duration-500`}
-      ></div>
     </div>
   );
 };

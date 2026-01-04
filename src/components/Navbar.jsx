@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
+import { FaChartLine, FaMoon, FaSignOutAlt, FaSun, FaUserCircle } from "react-icons/fa";
 import { Link, NavLink } from "react-router";
-import { FaUserCircle, FaSun, FaMoon } from "react-icons/fa";
 import logo from "../assets/logo.png";
 import { AuthContext } from "../provider/AuthProvider";
 
@@ -58,180 +58,143 @@ const Navbar = () => {
           Bills
         </NavLink>
       </li>
+      <li>
+        <NavLink
+          to="/about"
+          className={({ isActive }) =>
+            `font-medium ${isActive ? "text-primary" : ""}`
+          }
+        >
+          About
+        </NavLink>
+      </li>
+      <li>
+        <NavLink
+          to="/help"
+          className={({ isActive }) =>
+            `font-medium ${isActive ? "text-primary" : ""}`
+          }
+        >
+          Help
+        </NavLink>
+      </li>
       {user && (
-        <li>
-          <NavLink
-            to="/mypaybills"
-            className={({ isActive }) =>
-              `font-medium ${isActive ? "text-primary" : ""}`
-            }
-          >
-            My Pay Bills
-          </NavLink>
-        </li>
+        <>
+          <li>
+            <NavLink
+              to={user?.role === 'admin' ? '/dashboard/admin-home' : '/dashboard/user-home'}
+              className={({ isActive }) =>
+                `font-medium ${isActive ? "text-primary" : ""}`
+              }
+            >
+              Dashboard
+            </NavLink>
+          </li>
+        </>
       )}
     </>
   );
 
   return (
-    <div className="bg-base-100 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 navbar">
-        {/* Left: Logo */}
-        <div className="flex-1">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="SmartBill" className="h-10 w-10" />
-            <h2 className="text-2xl font-bold text-primary">SmartBill</h2>
-          </Link>
-        </div>
-
-        {/* Right side */}
-        <div className="flex-none">
-          {/* Desktop Menu */}
-          <ul className="menu menu-horizontal gap-4 hidden md:flex items-center">
-            {navLinks}
-
-            {/* Theme Toggle (Desktop) */}
-            <button
-              onClick={toggleTheme}
-              className=" btn btn-ghost btn-circle text-xl"
-            >
-              {theme === "light" ? <FaMoon /> : <FaSun />}
-            </button>
-
-            {/* Auth Buttons */}
-            {!user ? (
-              <>
-                <Link to="/login" className="btn btn-sm btn-primary">
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="btn btn-sm btn-outline btn-primary"
-                >
-                  Register
-                </Link>
-              </>
-            ) : (
-              <>
-                <div
-                  className="tooltip tooltip-bottom"
-                  data-tip={user?.displayName || user?.email}
-                >
-                  {user?.photoURL ? (
-                    <img
-                      src={user.photoURL}
-                      alt="User Avatar"
-                      className="w-9 h-9 rounded-full border-2 border-primary"
-                    />
-                  ) : (
-                    <FaUserCircle className="text-3xl text-gray-500" />
-                  )}
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-sm btn-error text-white"
-                >
-                  Logout
-                </button>
-              </>
-            )}
-          </ul>
-
-          {/* Mobile Menu */}
-          <div className="flex items-center gap-2 md:hidden">
-            {/* Remove extra theme toggle on mobile */}
-            {/* Dropdown Menu */}
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+    <div className="sticky top-0 z-50 transition-all duration-300">
+      <div className="absolute inset-0 bg-base-100/80 backdrop-blur-lg border-b border-base-content/5"></div>
+      <div className="container mx-auto px-4 md:px-8 relative">
+        <div className="navbar h-20 px-0">
+          {/* Left: Logo */}
+          <div className="flex-1">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <img src={logo} alt="SmartBill" className="h-8 w-8 object-contain" />
               </div>
+              <h2 className="text-2xl font-black bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+                SmartBill
+              </h2>
+            </Link>
+          </div>
 
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content mt-3 p-3 shadow bg-base-100 rounded-box w-52 space-y-1"
+          {/* Right side */}
+          <div className="flex-none flex items-center gap-2">
+            {/* Desktop Menu */}
+            <ul className="menu menu-horizontal gap-2 hidden md:flex items-center px-1">
+              {navLinks}
+            </ul>
+
+            <div className="divider divider-horizontal mx-2 hidden md:flex"></div>
+
+            <div className="flex items-center gap-3">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="btn btn-ghost btn-circle btn-sm hover:bg-base-300 transition-all"
               >
-                {navLinks}
+                {theme === "light" ? <FaMoon className="text-primary" /> : <FaSun className="text-warning" />}
+              </button>
 
-                <li>
-                  <button
-                    onClick={toggleTheme}
-                    className="btn btn-ghost btn-sm w-full flex justify-start"
-                  >
-                    {theme === "light" ? (
-                      <>
-                        <FaMoon className="mr-2" /> Dark Mode
-                      </>
-                    ) : (
-                      <>
-                        <FaSun className="mr-2" /> Light Mode
-                      </>
-                    )}
-                  </button>
-                </li>
-
-                <div className="divider my-1"></div>
-
+              {/* Desktop Auth */}
+              <div className="hidden md:flex items-center gap-3">
                 {!user ? (
                   <>
-                    <li>
-                      <Link
-                        to="/login"
-                        className="btn btn-sm btn-primary w-full"
-                      >
-                        Login
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/register"
-                        className="btn btn-sm btn-outline btn-primary w-full"
-                      >
-                        Register
-                      </Link>
-                    </li>
+                    <Link to="/login" className="btn btn-sm btn-ghost hover:bg-primary/10 hover:text-primary rounded-xl">
+                      Login
+                    </Link>
+                    <Link to="/register" className="btn btn-sm btn-primary rounded-xl px-6 shadow-lg shadow-primary/20">
+                      Register
+                    </Link>
                   </>
                 ) : (
-                  <>
-                    <li>
-                      <div className="flex items-center gap-2">
-                        {user?.photoURL ? (
-                          <img
-                            src={user.photoURL}
-                            alt="User Avatar"
-                            className="w-8 h-8 rounded-full border border-primary"
-                          />
-                        ) : (
-                          <FaUserCircle className="text-2xl text-gray-500" />
-                        )}
-                        <span className="text-sm truncate">
-                          {user?.displayName || user?.email}
-                        </span>
+                  <div className="flex items-center gap-4">
+                    <div className="dropdown dropdown-end">
+                      <div tabIndex={0} role="button" className="avatar cursor-pointer">
+                        <div className="w-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 hover:scale-110 transition-transform">
+                          <img src={user.photoURL || "https://i.ibb.co/6YhYh5S/user.png"} alt="User Avatar" />
+                        </div>
                       </div>
-                    </li>
-                    <li>
-                      <button
-                        onClick={handleLogout}
-                        className="btn btn-sm btn-error text-white w-full"
-                      >
-                        Logout
-                      </button>
-                    </li>
-                  </>
+                      <ul tabIndex={0} className="dropdown-content z-[100] menu p-4 shadow-2xl bg-base-100/95 backdrop-blur-xl rounded-2xl w-60 mt-4 border border-base-content/5 space-y-1">
+                        <div className="px-3 py-2 border-b border-base-content/5 mb-2">
+                          <p className="font-black text-sm text-base-content">{user?.displayName}</p>
+                          <p className="text-[10px] text-base-content/40 truncate">{user?.email}</p>
+                        </div>
+                        <li><Link to={user?.role === 'admin' ? '/dashboard/admin-home' : '/dashboard/user-home'} className="rounded-xl py-2 font-bold hover:bg-primary/10 hover:text-primary transition-all text-xs uppercase tracking-widest"><FaChartLine className="mr-2" /> Portal</Link></li>
+                        <li><Link to="/dashboard/profile" className="rounded-xl py-2 font-bold hover:bg-primary/10 hover:text-primary transition-all text-xs uppercase tracking-widest"><FaUserCircle className="mr-2" /> Dossier</Link></li>
+                        <div className="divider opacity-5 my-1"></div>
+                        <li><button onClick={handleLogout} className="rounded-xl py-2 font-black text-error hover:bg-error/10 text-xs uppercase tracking-widest"><FaSignOutAlt className="mr-2" /> Terminate</button></li>
+                      </ul>
+                    </div>
+                  </div>
                 )}
-              </ul>
+              </div>
+
+              {/* Mobile Menu Trigger */}
+              <div className="md:hidden dropdown dropdown-end">
+                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </div>
+                <ul tabIndex={0} className="menu menu-sm dropdown-content mt-4 p-3 shadow-2xl bg-base-100/95 backdrop-blur-xl rounded-2xl w-56 border border-base-content/5 space-y-2">
+                  <div className="px-3 py-2 text-xs font-bold text-base-content/50 uppercase tracking-widest">Navigation</div>
+                  {navLinks}
+                  <div className="divider opacity-50 my-1"></div>
+                  {!user ? (
+                    <div className="grid grid-cols-2 gap-2 p-1">
+                      <Link to="/login" className="btn btn-sm btn-ghost rounded-xl">Login</Link>
+                      <Link to="/register" className="btn btn-sm btn-primary rounded-xl">Join</Link>
+                    </div>
+                  ) : (
+                    <div className="p-1 space-y-2">
+                      <div className="flex items-center gap-3 px-3 py-2 bg-base-200 rounded-xl">
+                        {user?.photoURL ? (
+                          <img src={user.photoURL} className="w-8 h-8 rounded-full" alt="" />
+                        ) : (
+                          <FaUserCircle className="text-2xl opacity-50" />
+                        )}
+                        <span className="text-sm font-medium truncate">{user?.displayName || 'User'}</span>
+                      </div>
+                      <button onClick={handleLogout} className="btn btn-sm btn-error btn-outline w-full rounded-xl">Logout</button>
+                    </div>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
         </div>

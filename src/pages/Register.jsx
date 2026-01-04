@@ -1,184 +1,220 @@
 import Lottie from "lottie-react";
 import { useContext, useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import toast, { Toaster } from "react-hot-toast";
+import { FaArrowRight, FaEye, FaEyeSlash, FaFacebook, FaGithub, FaShieldAlt } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router";
+import instance from "../hook/useAxios";
 import registerAnim from "../lotties/login.json";
 import { AuthContext } from "../provider/AuthProvider";
-import toast, { Toaster } from "react-hot-toast";
 
 const Register = () => {
-  const { createUser, updateUserProfile, googleLogin } =
-    useContext(AuthContext);
+  const { setLoading, createUser, updateUserProfile, googleLogin, githubLogin, facebookLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
     const photo = form.photo.value;
     const password = form.password.value;
 
-    // Password validation
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
     if (!passwordRegex.test(password)) {
-      toast.error(
-        "Password must contain at least one uppercase, one lowercase letter, and be 6+ characters long.",
-        { duration: 3000 }
-      );
+      toast.error("Security standards not met! Ensure 1 Uppercase, 1 Lowercase, and 6+ characters.", {
+          duration: 4000,
+          style: { borderRadius: '1rem', background: '#ef4444', color: '#fff' }
+      });
+      setIsSubmitting(false);
       return;
     }
 
-    // Create user
     createUser(email, password)
-      .then((result) => {
-        const user = result.user;
+      .then(() => {
         updateUserProfile({ displayName: name, photoURL: photo })
-          .then(() => {
-            // toast.success("Account created successfully! 🎉");
+          .then(async () => {
+            // Save user to database
+            const userData = { email, name, image: photo };
+            await instance.put("/users", userData);
+
+            toast.success("Identity Verified! Welcome ✨", {
+                style: { borderRadius: '1rem', background: '#10b981', color: '#fff' }
+            });
             form.reset();
             navigate("/");
+            setLoading(false);
           })
           .catch(() => {
-            toast.error("Failed to update profile. Please try again.");
+            toast.error("Profile configuration failed.");
           });
       })
       .catch((err) => {
-        let message = err.message;
-        if (message.includes("auth/email-already-in-use")) {
-          toast.error(
-            "This email is already registered. Please log in instead.",
-            { duration: 3000 }
-          );
-        } else if (message.includes("auth/invalid-email")) {
-          toast.error("Invalid email format. Please enter a valid address.", {
-            duration: 3000,
-          });
-        } else if (message.includes("auth/weak-password")) {
-          toast.error("Password is too weak. Try a stronger one.", {
-            duration: 3000,
-          });
-        } else {
-          toast.error("Registration failed. Please try again.", {
-            duration: 3000,
-          });
-        }
+        let message = "Registration failed.";
+        if (err.code === 'auth/email-already-in-use') message = "Email identity already exists.";
+        toast.error(message, { style: { borderRadius: '1rem' }});
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
   };
 
-  const handleGoogleLogin = () => {
-    googleLogin()
-      .then(() => {
-        toast.success("Logged in with Google! ✅", { duration: 3000 });
+  const handleSocialLogin = (method) => {
+    setIsSubmitting(true);
+    method()
+      .then(async (result) => {
+        const u = result.user;
+        const userData = {
+            email: u.email,
+            name: u.displayName,
+            image: u.photoURL
+        };
+        await instance.put("/users", userData);
+
+        toast.success("Account Secured! Welcome ✨");
         navigate("/");
       })
-      .catch(() => {
-        toast.error("Google login failed. Please try again.", {
-          duration: 3000,
-        });
+      .catch((err) => {
+        console.error(err);
+        toast.error("Social authentication failed.");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row justify-center items-center bg-base-200 p-5">
+    <div className="flex flex-col lg:flex-row-reverse min-h-[calc(100vh-140px)] items-center gap-12 py-12">
       <title>Register | Smart Bills</title>
-      <Toaster position="top-center" reverseOrder={false} />
+      <Toaster position="top-right" />
 
-      <div className="w-full lg:w-1/2 flex justify-center">
-        <Lottie animationData={registerAnim} loop={true} className="w-3/4" />
+      {/* Animation Section */}
+      <div className="w-full lg:w-1/2 flex justify-center items-center p-8 bg-secondary/5 rounded-[3rem] border border-secondary/10">
+        <div className="w-full max-w-lg text-center">
+          <Lottie animationData={registerAnim} loop={true} />
+          <div className="mt-8 space-y-2">
+            <h3 className="text-2xl font-black text-secondary uppercase tracking-tighter italic">Secured Utility Infrastructure</h3>
+            <p className="text-base-content/60 font-medium">Provision your account for automated domestic billing.</p>
+          </div>
+        </div>
       </div>
-      <div className="w-full lg:w-1/2 max-w-md bg-base-100 rounded-2xl shadow-xl p-8">
-        <h2 className="text-3xl font-bold text-center text-primary mb-6">
-          Create Your Account
-        </h2>
 
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Full Name</span>
-            </label>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter your full name"
-              className="input input-bordered w-full"
-              required
-            />
+      {/* Form Section */}
+      <div className="w-full lg:w-1/2 flex justify-center">
+        <div className="w-full max-w-md bg-base-100 p-10 rounded-[2.5rem] shadow-2xl border border-base-content/5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-secondary to-primary"></div>
+          
+          <div className="mb-8 text-center text-secondary">
+            <h2 className="text-4xl font-black mb-3 italic tracking-tighter">Get Started</h2>
+            <p className="text-base-content/50 font-medium tracking-tight">Create your secure smart utility account</p>
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Email</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              className="input input-bordered w-full"
-              required
-            />
-          </div>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="form-control">
+              <label className="label px-1">
+                <span className="label-text font-bold text-base-content/70 uppercase text-xs tracking-widest">Full Name</span>
+              </label>
+              <input type="text" name="name" placeholder="John Doe" className="input input-lg bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-secondary/20 transition-all font-medium text-base" required />
+            </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Photo URL</span>
-            </label>
-            <input
-              type="text"
-              name="photo"
-              placeholder="Enter your photo URL"
-              className="input input-bordered w-full"
-              required
-            />
-          </div>
+            <div className="form-control">
+              <label className="label px-1">
+                <span className="label-text font-bold text-base-content/70 uppercase text-xs tracking-widest">Email Identity</span>
+              </label>
+              <input type="email" name="email" placeholder="john@doe.com" className="input input-lg bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-secondary/20 transition-all font-medium text-base" required />
+            </div>
 
-          <div className="form-control relative">
-            <label className="label">
-              <span className="label-text font-medium">Password</span>
-            </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Enter your password"
-              className="input input-bordered w-full pr-10"
-              required
-            />
-            <span
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-9 text-gray-500 cursor-pointer"
+            <div className="form-control">
+              <label className="label px-1">
+                <span className="label-text font-bold text-base-content/70 uppercase text-xs tracking-widest">Photo Token URL</span>
+              </label>
+              <input type="text" name="photo" placeholder="https://unsplash.com/photo..." className="input input-lg bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-secondary/20 transition-all font-medium text-xs truncate" required />
+            </div>
+
+            <div className="form-control relative">
+              <label className="label px-1">
+                <span className="label-text font-bold text-base-content/70 uppercase text-xs tracking-widest">Encryption Key</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="••••••••"
+                  className="input input-lg bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-secondary/20 transition-all w-full pr-12 font-medium text-base"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-secondary transition-colors"
+                >
+                  {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                </button>
+              </div>
+              <div className="flex items-center gap-2 px-1 mt-3 opacity-30">
+                  <FaShieldAlt size={10} />
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em]">6+ Chars, Mix-case</p>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="btn btn-secondary btn-lg w-full rounded-2xl shadow-xl shadow-secondary/25 group overflow-hidden relative mt-2"
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
-            <label className="label text-xs text-gray-500">
-              Must include 1 uppercase, 1 lowercase & be 6+ characters
-            </label>
+              {isSubmitting ? (
+                <span className="loading loading-spinner"></span>
+              ) : (
+                <>
+                  <span className="relative z-10 text-white">Provision Account</span>
+                  <FaArrowRight className="inline-block ml-2 group-hover:translate-x-2 transition-transform relative z-10 text-white" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center space-y-6">
+            <p className="text-sm font-medium text-base-content/50">
+              Already authorized?{" "}
+              <Link to="/login" className="text-secondary font-bold hover:underline">
+                Sign In Instead
+              </Link>
+            </p>
+
+            <div className="divider text-xs font-bold text-base-content/20 uppercase tracking-widest font-black italic leading-none">Social Link</div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleSocialLogin(googleLogin)}
+                disabled={isSubmitting}
+                className="btn btn-outline btn-lg rounded-2xl flex flex-col items-center justify-center h-auto py-4 border-base-content/10 hover:bg-base-200 transition-colors tooltip tooltip-bottom"
+                data-tip="Google"
+              >
+                <FcGoogle size={24} />
+              </button>
+              <button
+                onClick={() => handleSocialLogin(githubLogin)}
+                disabled={isSubmitting}
+                className="btn btn-outline btn-lg rounded-2xl flex flex-col items-center justify-center h-auto py-4 border-base-content/10 hover:bg-base-200 transition-colors tooltip tooltip-bottom"
+                data-tip="GitHub"
+              >
+                <FaGithub size={24} />
+              </button>
+              <button
+                onClick={() => handleSocialLogin(facebookLogin)}
+                disabled={isSubmitting}
+                className="btn btn-outline btn-lg rounded-2xl flex flex-col items-center justify-center h-auto py-4 border-base-content/10 hover:bg-base-200 transition-colors tooltip tooltip-bottom text-blue-600"
+                data-tip="Facebook"
+              >
+                <FaFacebook size={24} />
+              </button>
+            </div>
           </div>
-
-          <div className="form-control mt-6">
-            <button className="btn btn-primary w-full">Register</button>
-          </div>
-        </form>
-
-        <p className="text-center text-sm mt-4">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-primary font-semibold hover:underline"
-          >
-            Login here
-          </Link>
-        </p>
-
-        <div className="divider">OR</div>
-        <button
-          onClick={handleGoogleLogin}
-          className="btn btn-outline btn-accent w-full flex items-center gap-2"
-        >
-          <FcGoogle size={20} />
-          Continue with Google
-        </button>
+        </div>
       </div>
     </div>
   );

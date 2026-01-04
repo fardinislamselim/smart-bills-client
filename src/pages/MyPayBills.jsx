@@ -1,16 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
-import instance from "../hook/useAxios";
-import { AuthContext } from "../provider/AuthProvider";
-import Swal from "sweetalert2";
-import Loading from "../components/Loading";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useContext, useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import instance from "../hook/useAxios";
+import { AuthContext } from "../provider/AuthProvider";
+
+import { useLocation } from "react-router";
 
 const MyPayBills = () => {
   const { user } = useContext(AuthContext);
   const [bills, setBills] = useState([]);
   const [selectedBill, setSelectedBill] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const isAdminView = location.pathname.includes("all-transactions");
+
   const [formData, setFormData] = useState({
     amount: "",
     address: "",
@@ -37,9 +41,8 @@ const MyPayBills = () => {
   const fetchBills = async () => {
     try {
       setLoading(true);
-      const { data } = await instance.get(
-        `/paid-bills/user?email=${user.email}`
-      );
+      const endpoint = isAdminView ? "/admin/all-transactions" : `/paid-bills/user?email=${user.email}`;
+      const { data } = await instance.get(endpoint);
       setBills(data || []);
     } catch (err) {
       console.error("Error fetching bills:", err);
@@ -50,7 +53,7 @@ const MyPayBills = () => {
 
   useEffect(() => {
     if (user?.email) fetchBills();
-  }, [user]);
+  }, [user, location.pathname]);
 
   const totalAmount = bills.reduce(
     (sum, bill) => sum + parseFloat(bill.amount || 0),
@@ -154,100 +157,117 @@ const MyPayBills = () => {
   };
 
   return (
-    <div
-      className={
-        theme === "dark"
-          ? "bg-gray-900 text-gray-100 min-h-screen"
-          : "bg-base-100 text-base-content min-h-screen"
-      }
-    >
-      <title>My Pay Bills | Smart Bills</title>
-      <div className="py-6 container mx-auto px-4 transition-colors duration-500">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6">
-          <h2 className="text-2xl font-bold mb-3 sm:mb-0">My Pay Bills</h2>
+    <div className="space-y-8 animate-fade-in text-base-content">
+      <title>{isAdminView ? "All Transactions" : "My Payments"} | Smart Bills</title>
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+              <h1 className="text-3xl font-black tracking-tighter">
+                  {isAdminView ? "Ledger Audit" : "Payment History"}
+              </h1>
+              <p className="text-base-content/40 font-medium">
+                  {isAdminView ? "Full platform transaction overview" : "Manage and track your utility expenditures"}
+              </p>
+          </div>
           <button
-            className="btn btn-success text-white"
-            onClick={handleDownloadReport}
-            disabled={loading || bills.length === 0}
+              className="btn btn-primary rounded-2xl px-8 font-black shadow-xl h-auto py-4"
+              onClick={handleDownloadReport}
+              disabled={loading || bills.length === 0}
           >
-            Download Report
+              Download Report (.PDF)
           </button>
-        </div>
+      </div>
 
-        <div
-          className={`stats shadow mb-6 ${
-            theme === "dark"
-              ? "bg-gradient-to-r from-indigo-700 to-purple-800 text-white"
-              : "bg-gradient-to-r from-primary to-accent text-white"
-          }`}
-        >
-          <div className="stat">
-            <div className="stat-title text-white">Total Bills Paid</div>
-            <div className="stat-value">{bills.length}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-base-100 p-8 rounded-[2.5rem] shadow-xl border border-base-content/5 flex items-center justify-between group hover:border-primary/20 transition-all">
+              <div>
+                  <p className="text-[10px] font-black text-base-content/40 uppercase tracking-[0.2em]">Validated Receipts</p>
+                  <p className="text-3xl font-black mt-2">{bills.length}</p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500 text-white flex items-center justify-center text-2xl shadow-lg ring-8 ring-base-200">
+                  <span className="font-black text-xl">#</span>
+              </div>
           </div>
-          <div className="stat">
-            <div className="stat-title text-white">Total Amount</div>
-            <div className="stat-value">৳{totalAmount.toLocaleString()}</div>
+          <div className="bg-base-100 p-8 rounded-[2.5rem] shadow-xl border border-base-content/5 flex items-center justify-between group hover:border-primary/20 transition-all">
+              <div>
+                  <p className="text-[10px] font-black text-base-content/40 uppercase tracking-[0.2em]">Cumulative Volume</p>
+                  <p className="text-3xl font-black mt-2">৳{totalAmount.toLocaleString()}</p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl shadow-lg ring-8 ring-base-200">
+                  <span>৳</span>
+              </div>
           </div>
-        </div>
+      </div>
 
+      <div className="bg-base-100 rounded-[3rem] shadow-xl border border-base-content/5 overflow-hidden">
         {loading ? (
-          <Loading />
+          <div className="py-20 flex justify-center"><span className="loading loading-spinner loading-lg text-primary"></span></div>
         ) : (
-          <div className="overflow-x-auto rounded-lg shadow-lg">
-            <table className="table table-zebra w-full">
-              <thead
-                className={theme === "dark" ? "bg-gray-800" : "bg-base-200"}
-              >
-                <tr>
-                  <th>SL</th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Amount</th>
-                  <th>Address</th>
-                  <th>Phone</th>
-                  <th>Date</th>
-                  <th>Actions</th>
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead>
+                <tr className="border-b border-base-content/5 text-base-content/30 uppercase text-[10px] font-black tracking-widest leading-none">
+                  <th className="px-8 py-6">Service Account</th>
+                  <th className="py-6">Identity</th>
+                  <th className="py-6">Volume</th>
+                  <th className="py-6">Phone Token</th>
+                  <th className="py-6">Settlement Date</th>
+                  {!isAdminView && <th className="py-6 text-center">Control</th>}
                 </tr>
               </thead>
               <tbody>
                 {bills.length > 0 ? (
                   bills.map((bill, index) => (
-                    <tr key={bill._id}>
-                      <td className="font-semibold text-center">{index + 1}</td>
-                      <td>{bill.username}</td>
-                      <td>{bill.email}</td>
-                      <td>৳{bill.amount}</td>
-                      <td>{bill.address}</td>
-                      <td>{bill.phone}</td>
-                      <td>{new Date(bill.date).toLocaleDateString()}</td>
-                      <td className="space-x-2">
-                        <button
-                          className="btn btn-sm btn-info text-white"
-                          onClick={() => openUpdateModal(bill)}
-                        >
-                          Update
-                        </button>
-                        <button
-                          className="btn btn-sm btn-error text-white"
-                          onClick={() => handleDelete(bill._id)}
-                        >
-                          Delete
-                        </button>
+                    <tr key={bill._id} className="hover:bg-primary/5 transition-colors">
+                      <td className="px-8 py-6">
+                          <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-black">
+                                  {bill.title?.[0] || 'S'}
+                              </div>
+                              <div>
+                                  <p className="font-black text-base-content">{bill.title || 'Service'}</p>
+                                  <p className="text-[10px] text-base-content/40 font-bold truncate max-w-[150px]">{bill.address}</p>
+                              </div>
+                          </div>
                       </td>
+                      <td className="py-6">
+                        <div className="text-sm">
+                            <p className="font-bold text-base-content/80">{bill.username}</p>
+                            <p className="text-[10px] font-medium text-base-content/30">{bill.email}</p>
+                        </div>
+                      </td>
+                      <td className="py-6 font-black text-base-content text-lg">৳{bill.amount}</td>
+                      <td className="py-6 font-medium text-base-content/60 italic">{bill.phone}</td>
+                      <td className="py-6 font-bold text-sm text-base-content/50">
+                          {new Date(bill.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </td>
+                      {!isAdminView && (
+                        <td className="py-6">
+                          <div className="flex justify-center gap-2">
+                            <button
+                                className="btn btn-square btn-ghost rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+                                onClick={() => openUpdateModal(bill)}
+                            >
+                                <span className="text-xs font-black">EDIT</span>
+                            </button>
+                            <button
+                                className="btn btn-square btn-ghost rounded-xl hover:bg-error/10 hover:text-error transition-all"
+                                onClick={() => handleDelete(bill._id)}
+                            >
+                                <span className="text-xs font-black">VOID</span>
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="text-center py-10 opacity-70">
-                      <div>
-                        <p className="text-lg font-semibold mb-2">
-                          No bills found
-                        </p>
-                        <p className="text-sm">
-                          You haven’t paid any bills yet.
-                        </p>
-                      </div>
+                    <td colSpan="7" className="text-center py-20 opacity-30">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="text-6xl text-base-content/10">∅</div>
+                            <p className="text-xl font-black uppercase tracking-tighter">No Active Records Found</p>
+                        </div>
                     </td>
                   </tr>
                 )}
@@ -255,84 +275,76 @@ const MyPayBills = () => {
             </table>
           </div>
         )}
-
-        <dialog id="update_modal" className="modal">
-          <div
-            className={`modal-box ${
-              theme === "dark"
-                ? "bg-gray-900 text-gray-100"
-                : "bg-base-100 text-base-content"
-            }`}
-          >
-            <h3 className="font-bold text-lg mb-4">Update Bill</h3>
-
-            <form onSubmit={handleUpdate}>
-              <label className="form-control w-full mb-2">
-                <span className="label-text">Amount</span>
-                <input
-                  type="number"
-                  name="amount"
-                  value={formData.amount}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </label>
-
-              <label className="form-control w-full mb-2">
-                <span className="label-text">Address</span>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </label>
-
-              <label className="form-control w-full mb-2">
-                <span className="label-text">Phone</span>
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </label>
-
-              <label className="form-control w-full mb-4">
-                <span className="label-text">Date</span>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </label>
-
-              <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() =>
-                    document.getElementById("update_modal").close()
-                  }
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary text-white">
-                  Update
-                </button>
-              </div>
-            </form>
-          </div>
-        </dialog>
       </div>
+
+      <dialog id="update_modal" className="modal">
+        <div className="modal-box bg-base-100 rounded-[2.5rem] shadow-2xl border border-base-content/5 p-10 max-w-lg">
+          <h3 className="text-2xl font-black mb-6 tracking-tighter">Modify Transaction</h3>
+
+          <form onSubmit={handleUpdate} className="space-y-5">
+            <div className="form-control">
+              <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1">Settlement Amount</label>
+              <input
+                type="number"
+                name="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-bold"
+                required
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1">Provisioning Address</label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium"
+                required
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1">Contact Token (Phone)</label>
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium"
+                required
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label uppercase text-[10px] font-black text-base-content/40 tracking-widest px-1">Schedule Date</label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className="input bg-base-200 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 font-bold"
+                required
+              />
+            </div>
+
+            <div className="modal-action gap-3 pt-4">
+              <button
+                type="button"
+                className="btn btn-ghost rounded-2xl font-bold px-6"
+                onClick={() => document.getElementById("update_modal").close()}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary rounded-2xl px-8 font-black shadow-xl shadow-primary/20">
+                Update Record
+              </button>
+            </div>
+          </form>
+        </div>
+      </dialog>
     </div>
   );
 };
